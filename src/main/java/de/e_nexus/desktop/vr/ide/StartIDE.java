@@ -1,11 +1,17 @@
 package de.e_nexus.desktop.vr.ide;
 
+import java.awt.Color;
+import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.util.logging.Logger;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.osgi.service.cdi.annotations.Reference;
+import org.osgi.service.cdi.annotations.Service;
 
 import de.e_nexus.desktop.vr.app.VirtualRealityApplication;
 import de.e_nexus.desktop.vr.app.comp.VRInputLine;
@@ -21,10 +27,15 @@ import de.e_nexus.vr.server.listeners.VRClientRequestAppInfo;
 import de.e_nexus.vr.server.listeners.VRClientStatusListener;
 import de.e_nexus.vr.server.listeners.VRExceptionListener;
 import de.e_nexus.vr.server.listeners.interaction.HelmetAndControllerInfo;
+import de.e_nexus.vr.server.mesh.Mesh;
+import de.e_nexus.vr.server.mesh.tex.Texture;
+import de.e_nexus.vr.server.mesh.tex.TextureStage;
 import de.e_nexus.vr.server.osgi.inter.VRServerService;
+import de.e_nexus.vr.server.util.TextureTools;
 
-public class StartIDE implements VRClientStatusListener, BundleActivator, VRClientRequestAppInfo,
-		VRClientHelmetAndControllerListener, VRClientKeyboardListener {
+@ApplicationScoped
+@Service
+public class StartIDE implements VRClientStatusListener, VRClientRequestAppInfo, VRClientHelmetAndControllerListener, VRClientKeyboardListener {
 	/**
 	 * The logger for this class.
 	 */
@@ -46,11 +57,20 @@ public class StartIDE implements VRClientStatusListener, BundleActivator, VRClie
 		}
 	}
 
-	public void start(BundleContext ctx) throws Exception {
-		LOG.info("Start '" + getLatin1Title() + "'");
-		ServiceReference<VRServerService> ref = ctx.getServiceReference(VRServerService.class);
-		VRServerService vrServerService = ctx.getService(ref);
+	@Reference
+	@Inject
+	private VRServerService vrServerService;
+
+	private Mesh m;
+
+	@PostConstruct
+	public void start() {
 		vrServer = vrServerService.getVRServer();
+		m = new Mesh();
+		m.addCube(0, 0, 2f, 1f, 1f);
+		m.setTexture(TextureStage.NORMALS, TextureTools.fromColor(Color.red));
+
+		vrServer.addMesh(m);
 		VRUIManagerAuthority.getDefaultManager().setVRServer(vrServer);
 		vrServer.getListeners().addInfoListener(this);
 		vrServer.getListeners().addVRClientStatusListener(this);
@@ -72,7 +92,9 @@ public class StartIDE implements VRClientStatusListener, BundleActivator, VRClie
 		app.getTextFocusWorker().setFocusedComponent(commandLine);
 	}
 
-	public void stop(BundleContext ctx) throws Exception {
+	@PreDestroy
+	public void stop() {
+		vrServer.removeMesh(m);
 		LOG.info("Stop " + getLatin1Title());
 		app.removeAll();
 		VRUIManagerAuthority.getDefaultManager().setVRServer(null);
