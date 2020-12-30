@@ -5,7 +5,7 @@
 	<groupId>de.e-nexus</groupId>
 	<artifactId>jvride</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-
+	<name>Virtual reality integrated development environment (VRIDE)</name>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -29,6 +29,11 @@
 			<artifactId>org.apache.felix.main</artifactId>
 			<version>6.0.3</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>de.e-nexus</groupId>
+			<artifactId>frame</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
