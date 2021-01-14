@@ -18,7 +18,7 @@ import de.e_nexus.vr.server.listeners.VRClientRequestAppInfo;
 import de.e_nexus.vr.server.listeners.VRClientStatusListener;
 import de.e_nexus.vr.server.listeners.interaction.HelmetAndControllerInfo;
 import de.e_nexus.vr.server.osgi.inter.VRServerService;
-import de.e_nexus.vr.tk.VRFrame;
+import de.e_nexus.vr.tk.frame.VRFrame;
 
 @ApplicationScoped
 @Service
@@ -78,6 +78,5 @@ public class StartIDE implements VRClientStatusListener, VRClientRequestAppInfo,
 
 	@Override
 	public void notifyKeyboardEvent(ClientKeyboardScancode[] downs, ClientKeyboardScancode[] ups, long incommingTime) {
-		System.out.println("me");
 	}
 }
